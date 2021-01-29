@@ -1,4 +1,5 @@
 const { writeFile } = require("fs");
+const { errorMonitor } = require("stream");
 
 function buildQs(role) {
   const validateInt = (str) => !!parseInt(str);
@@ -6,24 +7,32 @@ function buildQs(role) {
   const validateEmail = (str) =>
     !!str.length && str.includes("@") && str.includes(".");
 
+  const addTrace = (validator, errorMessage) => (value) => {
+      const result =  validator(value);
+      if (!result ){
+        console.log(" \n ", errorMessage || 'validation error');
+      }
+      return result;
+    }
+  
   const qs = [
     {
       type: "input",
       name: "name",
       message: `What is the ${role}'s name?`,
-      validate: validateLength,
+      validate: addTrace(validateLength, "has to be non empty"),
     },
     {
       type: "input",
       name: "id",
       message: `What is the ${role}'s employee id?`,
-      validate: validateInt,
+      validate: addTrace(validateInt, "has to be a number"),
     },
     {
       type: "input",
       name: "email",
       message: `What is the ${role}'s email?`,
-      validate: validateEmail,
+      validate: addTrace(validateEmail, "has to have @ and ."),
     },
   ];
   if (role === "Manager")
@@ -31,24 +40,21 @@ function buildQs(role) {
       type: "input",
       name: "officeNum",
       message: `What is the ${role}'s office number?`,
-      validate: validateInt,
+      validate: addTrace(validateInt, "has to be a number"),
     });
   else if (role === "Engineer")
     qs.push({
       type: "input",
       name: "github",
       message: `What is the ${role}'s github?`,
-      validate: validateLength,
+      validate: addTrace(validateEmail, "has to have @ and ."),
     });
   else
     qs.push({
       type: "input",
       name: "school",
       message: `What is the ${role}'s school?`,
-      validate: (str) =>
-        str.trim().toLowerCase() === "uofo"
-          ? true
-          : "We dont recognize that as school, try UofO.",
+      validate: addTrace(str => str.trim().toLowerCase() === "uofo", "We dont recognize that as school, try UofO."),
     });
   return qs;
 }
@@ -73,7 +79,7 @@ function buildHtml() {
   </html>
   `;
 
-  
+
   writeFile("./output/index.html", websiteHtml, (err) =>
     console.log("error writing file: ", err)
   );

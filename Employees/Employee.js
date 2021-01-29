@@ -10,10 +10,8 @@ class Employee {
       <h2>Role: ${this.role}</h2>
       <h2>Id: ${this.id}</h2>
       <h3>Email: ${this.email}</h3>
-      ${2+2}
-
       ${  
-        this.github && `<h3>Github: ${github}</h3>`
+        this.github && `<h3>Github: ${this.github}</h3>`
         || this.officeNum && `<h3>Office Number: ${this.officeNum}</h3>` 
         || this.school && `<h3>School: ${this.school}</h3>`
       };
